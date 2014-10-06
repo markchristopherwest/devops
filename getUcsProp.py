@@ -162,7 +162,7 @@ if __name__ == "__main__":
         hamode = getHaMode(handle)
         
         # Get FI model for A
-        model = getFiModel(handle)
+        model = getFiModel(handle,hamode)
 
         # Get chassis and servers
         chassismodel, servermodel = getBladeDetail(handle)

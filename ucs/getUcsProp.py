@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # This script retrieves UCS inventory
-# Usage: getUcsInfo.py [options]
+# Usage: getUcsProp.py [options]
 #
 # Options:
 # -h, --help            show this help message and exit
@@ -24,6 +24,7 @@
 # -p PASSWORD, --password=PASSWORD
 #                       [Mandatory] Account Password for UCSM Login
 #
+
 
 import getpass
 import optparse
@@ -128,30 +129,65 @@ def getRackDetail(handle):
 
     return rack_model
 
+
+# Get Blade chassis model details
+def getMacDetail(handle):
+    rack_mac = []
+    blade_mac = []
+
+    molist = handle.GetManagedObject(None, EquipmentChassis.ClassId())
+    chassis_cnt = 0
+    if (molist != None):
+        for mo in molist:
+            chassis_cnt = chassis_cnt + 1
+            for prop in UcsUtils.GetUcsPropertyMetaAttributeList(mo.propMoMeta.name):
+                if(str(prop) == ""):
+                    chassis_model.append(mo.getattr(prop))
+
+            molist1 = handle.GetManagedObject(None, ComputeBlade.ClassId())
+            server_cnt = 0
+            if (molist1 != None):
+                for mo1 in molist1:
+                    server_cnt = server_cnt + 1
+                    for prop in UcsUtils.GetUcsPropertyMetaAttributeList(mo1.propMoMeta.name):
+                        if(str(prop) == "Model"):
+                            server_model.append(mo1.getattr(prop))
+
+    return chassis_model, server_model
+
+
+
 if __name__ == "__main__":
     handle = UcsHandle()
     try:
-        parser = optparse.OptionParser()
-        parser.add_option('-i', '--ip',dest="ip",
-                          help="[Mandatory] UCSM IP Address")
-        parser.add_option('-u', '--username',dest="userName",
-                          help="[Mandatory] Account Username for UCSM Login")
-        parser.add_option('-p', '--password',dest="password",
-                          help="[Mandatory] Account Password for UCSM Login")
+        # parser = optparse.OptionParser()
+        # parser.add_option('-i', '--ip',dest="ip",
+        #                   help="[Mandatory] UCSM IP Address")
+        # parser.add_option('-u', '--username',dest="userName",
+        #                   help="[Mandatory] Account Username for UCSM Login")
+        # parser.add_option('-p', '--password',dest="password",
+        #                   help="[Mandatory] Account Password for UCSM Login")
+        #
+        # (options, args) = parser.parse_args()
+        #
+        # if not options.ip:
+        #     parser.print_help()
+        #     parser.error("Provide UCSM IP Address")
+        # if not options.userName:
+        #     parser.print_help()
+        #     parser.error("Provide UCSM UserName")
+        # if not options.password:
+        #     options.password=getpassword("UCSM Password:")
 
-        (options, args) = parser.parse_args()
-        
-        if not options.ip:
-            parser.print_help()
-            parser.error("Provide UCSM IP Address")
-        if not options.userName:
-            parser.print_help()
-            parser.error("Provide UCSM UserName")
-        if not options.password:
-            options.password=getpassword("UCSM Password:")
 
-        handle.Login(options.ip,options.userName,options.password)
-        
+
+
+        #handle.Login(options.ip,options.userName,options.password)
+        handle.Login("172.16.171.163","cliuser","cliuser")
+
+        # Get MAC Detail
+
+
         # Get Ethernet Mode
         ethmode = getEthernetMode(handle)
         
@@ -162,7 +198,7 @@ if __name__ == "__main__":
         hamode = getHaMode(handle)
         
         # Get FI model for A
-        model = getFiModel(handle)
+        model = getFiModel(handle,hamode)
 
         # Get chassis and servers
         chassismodel, servermodel = getBladeDetail(handle)
@@ -194,6 +230,10 @@ if __name__ == "__main__":
         while (i < len(rackmodel)):
             print rackmodel[i]
             i = i + 1
+
+        #Get MAC Detail
+
+        macDetail = getMacDetail(handle)
         
         handle.Logout()
 

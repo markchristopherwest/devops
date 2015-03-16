@@ -141,17 +141,19 @@ if __name__ == "__main__":
 
         (options, args) = parser.parse_args()
         
-        if not options.ip:
-            parser.print_help()
-            parser.error("Provide UCSM IP Address")
-        if not options.userName:
-            parser.print_help()
-            parser.error("Provide UCSM UserName")
-        if not options.password:
-            options.password=getpassword("UCSM Password:")
+        # if not options.ip:
+        #     parser.print_help()
+        #     parser.error("Provide UCSM IP Address")
+        # if not options.userName:
+        #     parser.print_help()
+        #     parser.error("Provide UCSM UserName")
+        # if not options.password:
+        #     options.password=getpassword("UCSM Password:")
+        #
+        # handle.Login(options.ip,options.userName,options.password)
 
-        handle.Login(options.ip,options.userName,options.password)
-        
+        handle.Login('172.16.171.163','cliuser','cliuser')
+
         # Get Ethernet Mode
         ethmode = getEthernetMode(handle)
         
